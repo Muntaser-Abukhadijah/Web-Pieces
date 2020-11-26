@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+	xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+	<h:outputStylesheet name="primeicons/primeicons.css"
+		library="primefaces" />
+
+
+	<style type="text/css">
+.ui-datalist .ui-datalist-content {
+	border: 0px none
+}
+
+.ui-datalist ul {
+	padding: 0px 10px 0 20px;
+	margin: 50px 0;
+}
+
+.label, .value {
+	vertical-align: top;
+}
+
+.output {
+	font-weight: bold;
+}
+
+.ui-selectmanymenu {
+margin: 0px;
+	width: 350px;
+}
+
+.coursesGrid option {
+	background-color: red;
+}
+
+.ui-selectmanymenu {
+	background-color: red;
+}
+</style>
+
+</h:head>
+<h:body>
+
+
+
+
+	<h:form id="form">
+		<p:growl id="msgs" showDetail="true" />
+
+		<p:dataTable var="student" value="#{studentView.students}"
+			editable="true" widgetVar="st" scrollRows="17" scrollable="true"
+			liveScroll="true" scrollHeight="400">
+			<f:facet name="header">
+            #{msgs.tableHeader}
+        </f:facet>
+
+			<p:ajax event="rowEdit" listener="#{studentView.onRowEdit}"
+				update=":form:msgs" />
+			<p:ajax event="rowEditCancel" listener="#{studentView.onRowCancel}"
+				update=":form:msgs" />
+
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.id}" />
+				</f:facet>
+				<h:outputText value="#{student.id}" />
+			</p:column>
+
+			<p:column headerText="#{msgs.firstName}">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{student.firstName}" />
+					</f:facet>
+					<f:facet name="input">
+						<h:inputText value="#{student.firstName}" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="#{msgs.lastName}">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{student.lastName}" />
+					</f:facet>
+					<f:facet name="input">
+						<h:inputText value="#{student.lastName}" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="#{msgs.email}">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{student.email}" />
+					</f:facet>
+					<f:facet name="input">
+						<h:inputText value="#{student.email}" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="#{msgs.city}">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{student.address.city}" />
+					</f:facet>
+					<f:facet name="input">
+						<h:inputText value="#{student.address.city}" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="#{msgs.country}">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{student.address.country}" />
+					</f:facet>
+					<f:facet name="input">
+						<h:inputText value="#{student.address.country}" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="Courses">
+
+				<p:selectOneMenu id="courses"
+					value="#{studentView.courseDiscription}" style="width:120px">
+
+					<p:ajax listener="#{studentView.onCourseChange}" />
+
+					<f:selectItem itemLabel="Select Course" itemValue=""
+						noSelectionOption="true" />
+
+					<f:selectItems value="#{student.courses}" var="course"
+						itemLabel="#{course.name}" itemValue="#{course.courseDiscription}" />
+
+				</p:selectOneMenu>
+
+
+			</p:column>
+
+			<p:column headerText="#{msgs.action}" style="width:50px">
+				<p:rowEditor />
+				<p:commandLink action="#{studentView.deleteStudent(student)}"
+					update="form">
+					<i class="fa fa-fw fa-trash-o"></i>
+					<p:confirm header="Confirmation" message="Are you sure?"
+						icon="pi pi-exclamation-triangle" />
+				</p:commandLink>
+			</p:column>
+
+		</p:dataTable>
+		<p:commandButton value="#{msgs.addNewStudent}" type="button"
+			onclick="PF('dlg2').show();" update="test" />
+	</h:form>
+
+	<p:dialog header="#{msgs.addNewStudentForm}" widgetVar="dlg2"
+		modal="true" height="520" closeOnEscape="true">
+		<h:form id="StudentForm">
+			<p:focus />
+			<p:growl id="growl" showDetail="true" />
+			<h:panelGrid columns="2" cellpadding="18">
+				<h:outputText value="#{msgs.firstName}" />
+				<p:inputText value="#{student.firstName}" />
+				<h:outputText value="#{msgs.lastName}" />
+				<p:inputText value="#{student.lastName}" />
+				<h:outputText value="#{msgs.email}">
+
+				</h:outputText>
+
+				<p:inputText value="#{student.email}" required="ture"
+					validator="#{student.emailCheck}">
+					<f:converter converterId="com.eastnets.studentcrud.EmailConverter" />
+				</p:inputText>
+
+				<h:outputText value="#{msgs.city}" />
+				<p:inputText value="#{student.address.city}" />
+				<h:outputText value="#{msgs.country}" />
+				<p:inputText value="#{student.address.country}" />
+
+				<p:selectBooleanCheckbox value="#{studentView.send}"
+					itemLabel="Send" />
+			</h:panelGrid>
+
+			<p:separator />
+
+
+			<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="20"
+				columnClasses="label, value">
+				<p:outputLabel for="grid" value="Courses" />
+				<p:selectManyMenu id="grid" value="#{studentView.selectedCourses}"
+					filter="true" filterMatchMode="contains" showCheckbox="true"
+					scrollHeight="200">
+
+					<f:converter converterId="com.eastnets.studentcrud.CourseConverter" />
+
+					<f:selectItems value="#{studentView.courses}" var="course"
+						itemLabel="#{course.name}" itemValue="#{course}" />
+
+
+				</p:selectManyMenu>
+			</h:panelGrid>
+
+
+
+
+			<p:commandButton value="#{msgs.save}" icon="fa fa-fw fa-plus"
+				action="#{studentView.addStudent(student)}"
+				update="StudentForm, :form, grid" />
+
+
+
+
+		</h:form>
+	</p:dialog>
+
+
+
+	<h:form>
+		<p:growl id="message" showDetail="true" />
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Yes" type="button"
+				styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+			<p:commandButton value="No" type="button"
+				styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+		</p:confirmDialog>
+	</h:form>
+
+
+
+</h:body>
+
+</html>
